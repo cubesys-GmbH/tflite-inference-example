@@ -38,10 +38,18 @@ Ensure the VX delegate library is available on your cube:evk:
 /usr/lib/libvx_delegate.so
 ```
 
-### Run 
+### Run the Example
+
+#### With VX Delegate (NPU accelerated)
 
 ```bash
-python image_detection.py 
+python image_detection.py --input input/example.jpg --output output/result.jpg
+```
+
+#### CPU Only (disable delegate)
+
+```bash
+python image_detection.py --input input/example.jpg --output output/result.jpg --no-delegate
 ```
 
 #### Example Result
