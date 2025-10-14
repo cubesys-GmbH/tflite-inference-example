@@ -5,7 +5,7 @@ Example project demonstrating image inference with bounding boxes using LiteRT (
 ## cube:evk
 
 <p align="center">
-  <img src="docs/cube-evk.png" alt="cube:evk" width="600">
+  <img src="docs/cube-evk.png" alt="cube:evk" width="300">
 </p>
 
 The cube:evk is built around the i.MX8MPlus, a quad-core Arm® Cortex®-A53 applications processor running at up to 1.8 GHz. It integrates a neural processing unit (NPU) capable of delivering up to 2.3 TOPS, making it the first i.MX processor with a dedicated machine learning accelerator. This architecture enables significantly enhanced performance for ML inference at the edge.
