@@ -4,14 +4,14 @@ Example project demonstrating image inference with bounding boxes using LiteRT (
 
 ## Installation and Setup
 
-### Clone the repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/cubesys-GmbH/tflite-inference-example.git
 cd tflite-inference-example
 ```
 
-### Set up a Python virtual environment
+### 2. Set up a Python virtual environment
 
 It's recommended to use a virtual environment to isolate project dependencies.
 
@@ -21,14 +21,14 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Install Requirements
+### 3. Install Requirements
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Run It
+### 4. Run It
 
 ```bash
 python image_detection.py 
