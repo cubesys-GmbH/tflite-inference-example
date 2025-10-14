@@ -117,5 +117,5 @@ frame = draw_bounding_box(cv_image, detections)
 
 # --- Save output ---
 cv2.imwrite(OUTPUT_PATH, frame)
-print(f"Inference complete in {inference_end-inference_start:.2f} sec. Output saved at {OUTPUT_PATH}")
+print(f"Inference complete in {inference_end-inference_start:.3f} sec. Output saved at {OUTPUT_PATH}")
 
