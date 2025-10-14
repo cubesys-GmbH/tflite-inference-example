@@ -43,7 +43,7 @@ pip install -r requirements.txt
 Ensure the VX delegate library is available on your cube:evk:
 
 ```bash
-/usr/lib/libvx_delegate.so
+ls /usr/lib/libvx_delegate.so
 ```
 
 ### Run the Example
