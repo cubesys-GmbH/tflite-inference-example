@@ -34,6 +34,9 @@ pip install -r requirements.txt
 python image_detection.py 
 ```
 
+<p align="center">
+  <img src="docs/result-image.jpg" alt="TFLite Inference Example Output" width="600">
+</p>
 
 ## License
 
