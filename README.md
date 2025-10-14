@@ -1,6 +1,6 @@
 # TFLite Inference Example - cube:evk
 
-Example project demonstrating image inference with bounding boxes using LiteRT (prev. TensorFlow Lite) on the **cube:evk**.
+Example project demonstrating image inference with bounding boxes using LiteRT (formerly TensorFlow Lite) on the **cube:evk**.
 
 ## Installation and Setup
 
