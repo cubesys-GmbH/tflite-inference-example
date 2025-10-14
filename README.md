@@ -28,11 +28,23 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Run It
+## Run It
+
+### Verify VX Delegate
+
+Ensure the VX delegate library is available on your cube:evk:
+
+```bash
+/usr/lib/libvx_delegate.so
+```
+
+### Run 
 
 ```bash
 python image_detection.py 
 ```
+
+#### Example Result
 
 <p align="center">
   <img src="docs/result-image.jpg" alt="TFLite Inference Example Output" width="600">
