@@ -1,8 +1,6 @@
-# TFLite Inference Example - cube:evk
+# AI on Edge with cube:evk
 
 Example project demonstrating image inference with bounding boxes using LiteRT (formerly TensorFlow Lite) on the **cube:evk**.
-
-## AI on Edge with cube:evk
 
 <p align="center">
   <img src="docs/cube-evk.png" alt="cube:evk" width="300">
