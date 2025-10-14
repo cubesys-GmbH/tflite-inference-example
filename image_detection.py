@@ -80,6 +80,11 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
+warmup_start = time.time()
+interpreter.invoke()
+warmup_end = time.time()
+print(f"Interpreter warmup time: {warmup_end-warmup_start:.2f} sec")
+
 # --- Load and preprocess image ---
 cv_image = cv2.imread(INPUT_IMAGE)
 input_height = input_details[0]['shape'][1]
@@ -112,5 +117,5 @@ frame = draw_bounding_box(cv_image, detections)
 
 # --- Save output ---
 cv2.imwrite(OUTPUT_PATH, frame)
-print(f"Inference complete in {inference_end-inference_start:.3f} sec. Output saved at {OUTPUT_PATH}")
+print(f"Inference complete in {inference_end-inference_start:.2f} sec. Output saved at {OUTPUT_PATH}")
 
