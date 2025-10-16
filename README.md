@@ -1,4 +1,4 @@
-# AI on Edge with cube:evk
+# Edge AI with cube:evk
 
 <p align="center">
   <img src="docs/cube-evk.png" alt="cube:evk" width="300">
