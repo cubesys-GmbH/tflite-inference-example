@@ -70,7 +70,7 @@ python image_detection.py --input input/example.jpg --output output/result.jpg -
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](.LICENSE) for details.
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
 
 ## Contribution & Support
 
