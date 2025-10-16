@@ -6,11 +6,11 @@
 
 The **cube:evk** is powered by an i.MX8MPlus quad-core Arm® Cortex®-A53 processor running up to 1.8 GHz, with an integrated neural processing unit (NPU) delivering up to 2.3 TOPS for efficient on-device AI inference.
 
-Beyond its processing performance, the **cube:evk** provides a comprehensive set of connectivity interfaces, including support for **V2X** technologies such as DSRC and C-V2X, making it well-suited for connected and intelligent edge applications.
+Beyond its processing performance, the cube:evk provides a comprehensive set of connectivity interfaces, including support for **V2X** technologies such as DSRC and C-V2X, making it well-suited for connected and intelligent edge applications.
 
-More details about **cube:evk**: [https://cubesys.io/#product-section](https://cubesys.io/#product-section)
+More details about cube:evk: [https://cubesys.io/#product-section](https://cubesys.io/#product-section)
 
-In this repository, we show an example project demonstrating image inference with bounding boxes using LiteRT (formerly TensorFlow Lite) on the **cube:evk**.
+In this repository, we show an example project demonstrating image inference with bounding boxes using LiteRT (formerly TensorFlow Lite) on the cube:evk.
 
 ## Installation and Setup
 
