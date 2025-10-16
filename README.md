@@ -8,6 +8,8 @@ The **cube:evk** is powered by an i.MX8MPlus quad-core Arm® Cortex®-A53 proces
 
 Beyond its processing performance, the **cube:evk** provides a comprehensive set of connectivity interfaces, including support for **V2X** technologies such as DSRC and C-V2X, making it well-suited for connected and intelligent edge applications.
 
+More details about **cube:evk**: [https://cubesys.io/#product-section](https://cubesys.io/#product-section)
+
 In this repository, we show an example project demonstrating image inference with bounding boxes using LiteRT (formerly TensorFlow Lite) on the **cube:evk**.
 
 ## Installation and Setup
@@ -68,7 +70,7 @@ python image_detection.py --input input/example.jpg --output output/result.jpg -
 
 ## License
 
-This project is licensed under the MIT License. See LICENSE for details.
+This project is licensed under the MIT License. See [LICENSE](.LICENSE) for details.
 
 ## Contribution & Support
 
