@@ -1,3 +1,6 @@
+# Copyright (c) 2025 cubesys GmbH
+# Licensed under the MIT License. See LICENSE for details.
+
 import os
 import cv2
 import time
@@ -31,6 +34,16 @@ def load_interpreter(model_path: str, use_delegate: bool) -> Interpreter:
         num_threads = cpu_count(),
     )
     return interpreter
+
+
+def load_labels(path: str) -> dict:
+    labels = {}
+    with open(path) as f:
+        for line in f:
+            parts = line.strip().split(maxsplit=1)
+            if len(parts) == 2:
+                labels[int(parts[0])] = parts[1]
+    return labels
 
 
 def resize_image(cv_image: np.ndarray, height: int, width: int) -> np.ndarray:
@@ -70,8 +83,11 @@ args = parser.parse_args()
 os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
 MODEL_PATH = "models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite"
+LABELS_PATH = "models/ssd_mobilenet_v1_1/labels.txt"
 INPUT_IMAGE = args.input
 OUTPUT_PATH = args.output
+
+labels = load_labels(LABELS_PATH)
 
 # --- Load interpreter ---
 interpreter = load_interpreter(MODEL_PATH, use_delegate=not args.no_delegate)
@@ -111,8 +127,9 @@ confidence = np.squeeze(interpreter.get_tensor(output_details[2]['index']))
 detections = []
 for idx, class_id in enumerate(classes):
     if confidence[idx] > 0.6:
-        detections.append((class_id, confidence[idx], boxes[idx]))
-print(detections)
+        label = labels.get(int(class_id), str(int(class_id)))
+        detections.append((label, confidence[idx], boxes[idx]))
+        print(f"{label}: {confidence[idx]:.2f}  bbox={boxes[idx].tolist()}")
 frame = draw_bounding_box(cv_image, detections)
 
 # --- Save output ---

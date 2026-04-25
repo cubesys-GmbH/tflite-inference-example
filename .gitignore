@@ -206,3 +206,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Inference outputs
+output/
+
+# Local dev container (not part of the cube:evk example)
+.devcontainer/
