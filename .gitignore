@@ -212,3 +212,6 @@ output/
 
 # Local dev container (not part of the cube:evk example)
 .devcontainer/
+
+# Maintainer tests (not part of the cube:evk example)
+tests/

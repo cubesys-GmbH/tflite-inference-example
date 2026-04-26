@@ -2,6 +2,6 @@
 # Licensed under the MIT License. See LICENSE for details.
 
 from .inference import Detection, Detector
-from .visualize import draw_bounding_box
+from .visualize import draw_bounding_box, draw_detections
 
-__all__ = ["Detection", "Detector", "draw_bounding_box"]
+__all__ = ["Detection", "Detector", "draw_bounding_box", "draw_detections"]

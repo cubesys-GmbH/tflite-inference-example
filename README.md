@@ -10,18 +10,37 @@ More about cube:evk: [https://cubesys.io/#product-section](https://cubesys.io/#p
 
 ## What This Example Does
 
-Runs object detection on a single image using **SSD MobileNet v1** (quantized, ~4 MB, 80 COCO classes) via LiteRT (formerly TensorFlow Lite). The script:
+Two example scripts demonstrate object detection with **SSD MobileNet v1** (quantized, ~4 MB, 80 COCO classes) on the cube:evk's NPU via the VX delegate (LiteRT, formerly TensorFlow Lite):
 
-1. Loads the model with the **VX delegate** so inference runs on the NPU (or falls back to CPU with `--no-delegate`).
-2. Resizes the input image to the model's **300 × 300** input.
-3. Runs inference and keeps detections with confidence **> 0.6**.
-4. Draws green bounding boxes and writes the result to disk.
-5. Prints warmup time and inference time to stdout.
+- **`image_detection.py`** — single-image inference. Reads an image, runs detection, writes an annotated copy to disk.
+- **`live_detection.py`** — live USB-camera inference. Captures from a UVC webcam plugged into the board, runs detection on each frame, and serves the annotated stream as **MJPEG over HTTP** so you can view it from any browser on the LAN. The cube:evk is typically headless, so output is delivered over the network rather than a local display.
 
-Bundled artifacts:
-- Model: `models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite`
-- Labels: `models/ssd_mobilenet_v1_1/labels.txt` (80 COCO classes)
-- Sample input: `input/example.jpg`
+Both scripts:
+
+1. Load the model with the **VX delegate** (NPU acceleration), or fall back to CPU with `--no-delegate`.
+2. Resize the input to the model's **300 × 300** input tensor.
+3. Filter detections by a configurable confidence threshold.
+4. Draw bounding boxes on the output.
+
+## Repository layout
+
+```
+tflite-inference-example/
+├── detector/                              # detection + drawing helpers
+│   ├── inference.py                       # Detector class, VX delegate handling
+│   └── visualize.py                       # draw_bounding_box, draw_detections
+├── models/
+│   └── ssd_mobilenet_v1_1/
+│       ├── ssd_mobilenet_v1_1.tflite      # bundled model (~4 MB, quantized)
+│       └── labels.txt                     # 80 COCO classes
+├── input/                                 # sample images
+│   └── example.jpg
+├── output/                                # annotated images written here
+├── docs/                                  # README assets
+├── image_detection.py                     # entry point: single-image inference
+├── live_detection.py                      # entry point: live USB-cam → MJPEG over HTTP
+└── requirements.txt
+```
 
 ## Installation
 
@@ -58,44 +77,102 @@ Installed packages: `numpy==1.26`, `opencv-python-headless`, `tflite-runtime`.
 ls /usr/lib/libvx_delegate.so
 ```
 
-If the file is missing, the script will fall back to CPU and print a warning.
+If the file is missing, the scripts fall back to CPU and print a warning.
 
-### Run with NPU acceleration (default)
+### Single-image inference — `image_detection.py`
+
+#### Run with NPU acceleration (default)
 
 ```bash
 python image_detection.py --input input/example.jpg --output output/result.jpg
 ```
 
-### Run on CPU only
+#### Run on CPU only
 
 ```bash
 python image_detection.py --input input/example.jpg --output output/result.jpg --no-delegate
 ```
 
-### Arguments
+#### Arguments
 
-| Flag            | Default                | Description                                       |
-| --------------- | ---------------------- | ------------------------------------------------- |
-| `--input`       | `input/example.jpg`    | Path to the input image.                          |
-| `--output`      | `output/result.jpg`    | Path to write the annotated image (dir auto-created). |
-| `--no-delegate` | *(off)*                | Disable the VX delegate; run inference on CPU.    |
+| Flag            | Default                                              | Description                                          |
+| --------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| `--input`       | `input/example.jpg`                                  | Path to the input image.                             |
+| `--output`      | `output/result.jpg`                                  | Path to write the annotated image (dir auto-created). |
+| `--model`       | `models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite` | Path to the `.tflite` model.                         |
+| `--labels`      | *(alongside model)*                                  | Path to `labels.txt`.                                |
+| `--threshold`   | `0.6`                                                | Confidence threshold; detections below are dropped.  |
+| `--no-delegate` | *(off)*                                              | Disable the VX delegate; run inference on CPU.       |
 
-### Expected output
+#### Expected output
 
 ```
 VX delegate loaded (NPU acceleration enabled)
 Interpreter warmup time: 0.XX sec
-[(class_id, confidence, [y1, x1, y2, x2]), ...]
+bicycle: 0.92  bbox=[0.21, 0.16, 0.74, 0.74]
+car: 0.87     bbox=[0.13, 0.62, 0.30, 0.89]
+dog: 0.83     bbox=[0.39, 0.16, 0.93, 0.42]
 Inference complete in 0.XXX sec. Output saved at output/result.jpg
 ```
 
 Compare warmup/inference times with and without `--no-delegate` to see the NPU speedup.
 
-### Example result
+#### Example result
 
 <p align="center">
-  <img src="docs/result-image.jpg" alt="TFLite Inference Example Output" width="600">
+  <img src="docs/result-image.jpg" alt="TFLite Inference Example Output" width="45%">
+  <img src="docs/result-image-2.jpg" alt="TFLite Inference Example Output (second sample)" width="45%">
 </p>
+
+### Live USB-camera streaming — `live_detection.py`
+
+Plug a UVC-compatible USB webcam into the cube:evk's USB port, then start the streamer:
+
+```bash
+python live_detection.py
+```
+
+You should see something like:
+
+```
+VX delegate loaded (NPU acceleration enabled)
+Interpreter warmup time: 0.XX sec
+Streaming at http://192.168.x.x:8080/  (LAN access)
+SSH tunnel from a remote host: ssh -L 8080:localhost:8080 <user>@<board>  then open http://localhost:8080/
+~9.8 fps  inference=98.4 ms  detections=2
+```
+
+Open the printed URL in any browser on the same network. The page embeds an MJPEG stream at `/stream.mjpg`; multiple browsers can connect at once. Stop with `Ctrl-C`.
+
+#### Viewing from a remote machine (SSH tunnel)
+
+If the cube:evk isn't directly reachable on your network — or you'd rather not expose the port to the LAN — bind the server to localhost and forward through SSH:
+
+```bash
+# on the cube:evk
+python live_detection.py --bind 127.0.0.1
+```
+
+```bash
+# on your laptop
+ssh -L 8080:localhost:8080 <user>@<cube-evk-ip>
+# then open http://localhost:8080/ in your browser
+```
+
+#### Arguments
+
+| Flag             | Default                                              | Description                                          |
+| ---------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| `--device`       | `0`                                                  | V4L2 device index (e.g. `0`) or path (e.g. `/dev/video0`). |
+| `--width`        | `640`                                                | Capture width.                                       |
+| `--height`       | `480`                                                | Capture height.                                      |
+| `--bind`         | `0.0.0.0`                                            | HTTP bind address. Use `127.0.0.1` to require an SSH tunnel. |
+| `--port`         | `8080`                                               | HTTP listen port.                                    |
+| `--model`        | `models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite` | Path to the `.tflite` model.                         |
+| `--labels`       | *(alongside model)*                                  | Path to `labels.txt`.                                |
+| `--threshold`    | `0.5`                                                | Confidence threshold; detections below are dropped.  |
+| `--jpeg-quality` | `80`                                                 | JPEG quality (1–100); lower = less bandwidth.        |
+| `--no-delegate`  | *(off)*                                              | Disable the VX delegate; run inference on CPU.       |
 
 ## License
 
