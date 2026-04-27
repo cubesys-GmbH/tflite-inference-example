@@ -6,7 +6,7 @@
 
 The **cube:evk** is powered by an i.MX8M Plus quad-core Arm Cortex-A53 (up to 1.8 GHz) with an integrated NPU delivering up to **2.3 TOPS** for on-device AI inference. It also exposes V2X interfaces (DSRC, C-V2X) for connected edge applications.
 
-More about cube:evk: [https://cubesys.io/#product-section](https://cubesys.io/#product-section)
+[Learn more about cube:evk](https://cubesys.io/#product-section)
 
 ## What This Example Does
 
