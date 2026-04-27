@@ -110,9 +110,8 @@ python image_detection.py --input input/image2.jpg --output output/result.jpg --
 ```
 VX delegate loaded (NPU acceleration enabled)
 Interpreter warmup time: 0.XX sec
-bicycle: 0.92  bbox=[0.21, 0.16, 0.74, 0.74]
-car: 0.87     bbox=[0.13, 0.62, 0.30, 0.89]
-dog: 0.83     bbox=[0.39, 0.16, 0.93, 0.42]
+motorcyclist: 0.75  bbox=[0.31631243, 0.52312815, 0.82744515, 0.80242085]
+car: 0.80  bbox=[0.34832233, 0.09315096, 0.66526, 0.47628003]
 Inference complete in 0.XXX sec. Output saved at output/result.jpg
 ```
 
