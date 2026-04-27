@@ -19,7 +19,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import cv2
 
-from detector import Detector, draw_detections
+from detector import ROAD_USER_LABELS, Detector, draw_detections, merge_rider_pairs
 
 DEFAULT_MODEL = "models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite"
 
@@ -115,6 +115,16 @@ def parse_args():
     parser.add_argument("--threshold", type=float, default=0.5, help="Confidence threshold")
     parser.add_argument("--no-delegate", action="store_true", help="Disable VX delegate (CPU only)")
     parser.add_argument("--jpeg-quality", type=int, default=80, help="JPEG quality 1-100")
+    parser.add_argument(
+        "--all-labels",
+        action="store_true",
+        help=f"Detect all model classes (default keeps only road users: {', '.join(ROAD_USER_LABELS)})",
+    )
+    parser.add_argument(
+        "--no-merge-riders",
+        action="store_true",
+        help="Disable merging overlapping person+bicycle / person+motorcycle into cyclist/motorcyclist",
+    )
     return parser.parse_args()
 
 
@@ -140,6 +150,7 @@ def main():
         labels_path=args.labels,
         use_delegate=not args.no_delegate,
         confidence_threshold=args.threshold,
+        allowed_labels=None if args.all_labels else ROAD_USER_LABELS,
     )
     print(f"Interpreter warmup time: {detector.warmup_time:.2f} sec")
 
@@ -163,6 +174,8 @@ def main():
                 continue
 
             detections, last_inference_time = detector.detect(frame)
+            if not args.no_merge_riders:
+                detections = merge_rider_pairs(detections)
             annotated = draw_detections(frame, detections)
             ok, buf = cv2.imencode(".jpg", annotated, encode_params)
             if ok:

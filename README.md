@@ -34,7 +34,8 @@ tflite-inference-example/
 │       ├── ssd_mobilenet_v1_1.tflite      # bundled model (~4 MB, quantized)
 │       └── labels.txt                     # 80 COCO classes
 ├── input/                                 # sample images
-│   └── example.jpg
+│   ├── image1.jpg
+│   └── image2.jpg
 ├── output/                                # annotated images written here
 ├── docs/                                  # README assets
 ├── image_detection.py                     # entry point: single-image inference
@@ -84,20 +85,20 @@ If the file is missing, the scripts fall back to CPU and print a warning.
 #### Run with NPU acceleration (default)
 
 ```bash
-python image_detection.py --input input/example.jpg --output output/result.jpg
+python image_detection.py --input input/image2.jpg --output output/result.jpg
 ```
 
 #### Run on CPU only
 
 ```bash
-python image_detection.py --input input/example.jpg --output output/result.jpg --no-delegate
+python image_detection.py --input input/image2.jpg --output output/result.jpg --no-delegate
 ```
 
 #### Arguments
 
 | Flag            | Default                                              | Description                                          |
 | --------------- | ---------------------------------------------------- | ---------------------------------------------------- |
-| `--input`       | `input/example.jpg`                                  | Path to the input image.                             |
+| `--input`       | `input/image2.jpg`                                  | Path to the input image.                             |
 | `--output`      | `output/result.jpg`                                  | Path to write the annotated image (dir auto-created). |
 | `--model`       | `models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite` | Path to the `.tflite` model.                         |
 | `--labels`      | *(alongside model)*                                  | Path to `labels.txt`.                                |
@@ -120,8 +121,7 @@ Compare warmup/inference times with and without `--no-delegate` to see the NPU s
 #### Example result
 
 <p align="center">
-  <img src="docs/result-image.jpg" alt="TFLite Inference Example Output" width="45%">
-  <img src="docs/result-image-2.jpg" alt="TFLite Inference Example Output (second sample)" width="45%">
+  <img src="docs/result.jpg" alt="TFLite Inference Example Output">
 </p>
 
 ### Live USB-camera streaming — `live_detection.py`

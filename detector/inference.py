@@ -5,13 +5,29 @@ import os
 import time
 from dataclasses import dataclass
 from multiprocessing import cpu_count
-from typing import List, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple
 
 import cv2
 import numpy as np
 from tflite_runtime.interpreter import Interpreter, load_delegate
 
 DEFAULT_VX_DELEGATE_PATH = "/usr/lib/libvx_delegate.so"
+
+ROAD_USER_LABELS = (
+    "person",
+    "bicycle",
+    "car",
+    "motorcycle",
+    "bus",
+    "train",
+    "truck",
+    "traffic light",
+)
+
+RIDER_MERGES = {
+    frozenset({"person", "bicycle"}): "cyclist",
+    frozenset({"person", "motorcycle"}): "motorcyclist",
+}
 
 
 @dataclass
@@ -36,9 +52,11 @@ class Detector:
         use_delegate: bool = True,
         vx_delegate_path: str = DEFAULT_VX_DELEGATE_PATH,
         confidence_threshold: float = 0.6,
+        allowed_labels: Optional[Iterable[str]] = None,
     ):
         self.confidence_threshold = confidence_threshold
         self.labels = self._load_labels(labels_path) if labels_path else {}
+        self.allowed_labels = set(allowed_labels) if allowed_labels else None
 
         delegates = []
         if not use_delegate:
@@ -118,7 +136,56 @@ class Detector:
         for idx, class_id in enumerate(classes):
             if scores[idx] > self.confidence_threshold:
                 label = self.labels.get(int(class_id), str(int(class_id)))
+                if self.allowed_labels is not None and label not in self.allowed_labels:
+                    continue
                 detections.append(
                     Detection(label=label, score=float(scores[idx]), box=tuple(boxes[idx]))
                 )
         return detections, elapsed
+
+
+def _iou(a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]) -> float:
+    ay1, ax1, ay2, ax2 = a
+    by1, bx1, by2, bx2 = b
+    iw = max(0.0, min(ax2, bx2) - max(ax1, bx1))
+    ih = max(0.0, min(ay2, by2) - max(ay1, by1))
+    inter = iw * ih
+    if inter <= 0.0:
+        return 0.0
+    union = max(0.0, (ax2 - ax1) * (ay2 - ay1)) + max(0.0, (bx2 - bx1) * (by2 - by1)) - inter
+    return inter / union if union > 0.0 else 0.0
+
+
+def merge_rider_pairs(detections: List[Detection], iou_threshold: float = 0.1) -> List[Detection]:
+    """Collapse overlapping person+bicycle / person+motorcycle pairs into a single detection.
+
+    Greedy: highest-IoU eligible pair is merged first; each detection participates in
+    at most one merge. Non-matching detections pass through unchanged.
+    """
+    candidates = []
+    for i in range(len(detections)):
+        for j in range(i + 1, len(detections)):
+            key = frozenset({detections[i].label, detections[j].label})
+            if key not in RIDER_MERGES or len(key) < 2:
+                continue
+            iou = _iou(detections[i].box, detections[j].box)
+            if iou >= iou_threshold:
+                candidates.append((iou, i, j, RIDER_MERGES[key]))
+    candidates.sort(reverse=True)
+
+    consumed = [False] * len(detections)
+    merged: List[Detection] = []
+    for _, i, j, label in candidates:
+        if consumed[i] or consumed[j]:
+            continue
+        consumed[i] = consumed[j] = True
+        a, b = detections[i].box, detections[j].box
+        merged.append(Detection(
+            label=label,
+            score=max(detections[i].score, detections[j].score),
+            box=(min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3])),
+        ))
+    for k, d in enumerate(detections):
+        if not consumed[k]:
+            merged.append(d)
+    return merged

@@ -7,19 +7,29 @@ import sys
 
 import cv2
 
-from detector import Detector, draw_bounding_box
+from detector import ROAD_USER_LABELS, Detector, draw_bounding_box, merge_rider_pairs
 
 DEFAULT_MODEL = "models/ssd_mobilenet_v1_1/ssd_mobilenet_v1_1.tflite"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="TFLite object detection on cube:evk")
-    parser.add_argument("--input", default="input/example.jpg", help="Path to input image")
+    parser.add_argument("--input", default="input/image2.jpg", help="Path to input image")
     parser.add_argument("--output", default="output/result.jpg", help="Path to save output image")
     parser.add_argument("--model", default=DEFAULT_MODEL, help="Path to .tflite model")
     parser.add_argument("--labels", default=None, help="Path to labels.txt (default: labels.txt next to the model)")
     parser.add_argument("--threshold", type=float, default=0.6, help="Confidence threshold")
     parser.add_argument("--no-delegate", action="store_true", help="Disable VX delegate (CPU only)")
+    parser.add_argument(
+        "--all-labels",
+        action="store_true",
+        help=f"Detect all model classes (default keeps only road users: {', '.join(ROAD_USER_LABELS)})",
+    )
+    parser.add_argument(
+        "--no-merge-riders",
+        action="store_true",
+        help="Disable merging overlapping person+bicycle / person+motorcycle into cyclist/motorcyclist",
+    )
     return parser.parse_args()
 
 
@@ -41,10 +51,13 @@ def main():
         labels_path=args.labels,
         use_delegate=not args.no_delegate,
         confidence_threshold=args.threshold,
+        allowed_labels=None if args.all_labels else ROAD_USER_LABELS,
     )
     print(f"Interpreter warmup time: {detector.warmup_time:.2f} sec")
 
     detections, inference_time = detector.detect(cv_image)
+    if not args.no_merge_riders:
+        detections = merge_rider_pairs(detections)
     for d in detections:
         print(f"{d.label}: {d.score:.2f}  bbox={list(d.box)}")
 
