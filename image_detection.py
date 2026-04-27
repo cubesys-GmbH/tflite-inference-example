@@ -1,6 +1,8 @@
 # Copyright (c) 2025 cubesys GmbH
 # Licensed under the MIT License. See LICENSE for details.
 
+"""Single-image object detection on cube:evk; writes an annotated copy to disk."""
+
 import argparse
 import os
 import sys

@@ -1,6 +1,8 @@
 # Copyright (c) 2025 cubesys GmbH
 # Licensed under the MIT License. See LICENSE for details.
 
+"""TFLite SSD-MobileNet detection: model loading, inference, and rider-pair merging."""
+
 import os
 import time
 from dataclasses import dataclass
@@ -13,6 +15,7 @@ from tflite_runtime.interpreter import Interpreter, load_delegate
 
 DEFAULT_VX_DELEGATE_PATH = "/usr/lib/libvx_delegate.so"
 
+# Default road-user filter applied by the CLIs unless --all-labels is passed.
 ROAD_USER_LABELS = (
     "person",
     "bicycle",
@@ -24,6 +27,7 @@ ROAD_USER_LABELS = (
     "traffic light",
 )
 
+# Class-pair → merged-label rules applied by `merge_rider_pairs`.
 RIDER_MERGES = {
     frozenset({"person", "bicycle"}): "cyclist",
     frozenset({"person", "motorcycle"}): "motorcyclist",
@@ -32,6 +36,8 @@ RIDER_MERGES = {
 
 @dataclass
 class Detection:
+    """One detected object: label, confidence score, and a normalized bounding box."""
+
     label: str
     score: float
     box: Tuple[float, float, float, float]  # (y1, x1, y2, x2), normalized [0, 1]
@@ -89,6 +95,7 @@ class Detector:
 
     @staticmethod
     def _load_labels(path: str) -> dict:
+        """Parse a `<id>  <name>` labels file into an {id: name} dict."""
         labels = {}
         with open(path) as f:
             for line in f:
@@ -98,6 +105,7 @@ class Detector:
         return labels
 
     def _preprocess(self, cv_image: np.ndarray) -> np.ndarray:
+        """BGR cv2 image → batched RGB tensor sized to the model input."""
         height = self._input_shape[1]
         width = self._input_shape[2]
         rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
@@ -108,6 +116,7 @@ class Detector:
         return batch
 
     def _parse_outputs(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Read (boxes, classes, scores) tensors from the interpreter."""
         # Standard TFLite SSD postprocess names; positional fallback otherwise.
         by_name = {od["name"]: od for od in self.output_details}
         base = "TFLite_Detection_PostProcess"
@@ -145,6 +154,7 @@ class Detector:
 
 
 def _iou(a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]) -> float:
+    """Intersection-over-union of two normalized (y1, x1, y2, x2) boxes."""
     ay1, ax1, ay2, ax2 = a
     by1, bx1, by2, bx2 = b
     iw = max(0.0, min(ax2, bx2) - max(ax1, bx1))

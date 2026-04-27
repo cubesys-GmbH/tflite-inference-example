@@ -1,6 +1,8 @@
 # Copyright (c) 2025 cubesys GmbH
 # Licensed under the MIT License. See LICENSE for details.
 
+"""Bounding-box drawing helpers for cv2 images."""
+
 from typing import List, Tuple
 
 import cv2
@@ -15,6 +17,7 @@ def draw_bounding_box(
     color: Tuple[int, int, int] = (0, 255, 0),
     thickness: int = 2,
 ) -> np.ndarray:
+    """Draw bounding boxes only (no labels). Returns a new image; input is not mutated."""
     image = cv_image.copy()
     h, w = image.shape[:2]
     for det in detections:
@@ -34,7 +37,7 @@ def draw_detections(
     thickness: int = 2,
     font_scale: float = 0.5,
 ) -> np.ndarray:
-    """Draw bounding boxes annotated with label and score (for live view)."""
+    """Draw bounding boxes annotated with label and score (for live view). Input is not mutated."""
     image = cv_image.copy()
     h, w = image.shape[:2]
     font = cv2.FONT_HERSHEY_SIMPLEX
