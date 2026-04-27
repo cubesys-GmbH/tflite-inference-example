@@ -1,7 +1,7 @@
 # Edge AI with cube:evk
 
 <p align="center">
-  <img src="docs/cube-evk-overview.png" alt="cube:evk" width="300">
+  <img src="docs/cube-evk-overview.png" alt="cube:evk">
 </p>
 
 The **cube:evk** is powered by an i.MX8M Plus quad-core Arm Cortex-A53 (up to 1.8 GHz) with an integrated NPU delivering up to **2.3 TOPS** for on-device AI inference. It also exposes V2X interfaces (DSRC, C-V2X) for connected edge applications.
